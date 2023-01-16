@@ -114,7 +114,7 @@ export default function Home() {
         <Heading>Produtos</Heading>
         {wallet ? (
           <Button onClick={requestAccount} isDisabled>
-            {balance} ETH
+            {balance} FTM
           </Button>
         ) : (
           <Button onClick={requestAccount}>Connect Wallet</Button>
@@ -160,7 +160,7 @@ export default function Home() {
                       );
                     }}
                   >
-                    Buy {data.value} ETH
+                    Buy {data.value} FTM
                   </Button>
                 )}
                 {data.owner.toLowerCase() === wallet && (
