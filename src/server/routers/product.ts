@@ -4,9 +4,18 @@ import { procedure, router } from "../trpc";
 import { z } from "zod";
 import { JsonDB, Config } from "node-json-db";
 
+type Product = {
+  id: string;
+  name: string;
+  url: string;
+  value: string;
+  owner: string;
+  transactionHash: string;
+  createdBy: string;
+};
 export const productRouter = router({
   products: procedure.query(async ({ ctx }) => {
-    return ctx.db.getData("/");
+    return Object.values(ctx.db.mget(ctx.db.keys()));
   }),
   buyProduct: procedure
     .input(
@@ -28,20 +37,18 @@ export const productRouter = router({
 
       await tx.wait();
 
-      const products = await ctx.db.getData("/");
+      const product = ctx.db.get(productId) as Product;
 
-      const newProducts = products.map((product) => {
-        if (
-          product.id === productId &&
-          sendValue === product.value &&
-          to === product.createdBy
-        ) {
-          product.owner = from!;
-          product.transactionHash = hash;
-        }
-        return product;
-      });
+      if (
+        product.id === productId &&
+        sendValue === product.value &&
+        to === product.createdBy
+      ) {
+        product.owner = from!;
+        product.transactionHash = hash;
+      }
 
-      await ctx.db.push("/", newProducts);
+      ctx.db.set(product.id, product);
+      ctx.db.get(product.id);
     }),
 });
