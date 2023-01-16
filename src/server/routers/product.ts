@@ -29,10 +29,7 @@ export const productRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { hash, productId } = input;
 
-      const provider = new ethers.providers.JsonRpcProvider(
-        process.env.RPCPROVIDER
-      );
-      const tx = await provider.getTransaction(hash);
+      const tx = await ctx.provider.getTransaction(hash);
       const from = tx.from;
       const to = tx.to;
       const sendValue = utils.formatEther(tx.value);
