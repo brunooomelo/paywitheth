@@ -66,7 +66,7 @@ const NFT = ({ refetch, wallet, ...data }) => {
           <Heading size="md">{data.name}</Heading>
           <Text py="2">ID:{data.id}</Text>
           <Text py="2">createdBy:{data.createdBy}</Text>
-          {data.owner.toLowerCase() !== wallet && (
+          {!!data.owner && data.owner.toLowerCase() !== wallet && (
             <Text py="2">owned:{data.owner}</Text>
           )}
         </CardBody>
