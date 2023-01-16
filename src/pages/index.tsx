@@ -120,8 +120,8 @@ export default function Home() {
           <Button onClick={requestAccount}>Connect Wallet</Button>
         )}
       </Flex>
-      <Flex>
-        {produts.data?.map((data, index) => (
+      <Flex flexWrap="wrap" gap="20px">
+        {produts.data?.map((data) => (
           <Card
             direction={{ base: "column" }}
             overflow="hidden"
