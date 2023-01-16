@@ -15,7 +15,9 @@ type Product = {
 };
 export const productRouter = router({
   products: procedure.query(async ({ ctx }) => {
-    return Object.values(ctx.db.mget(ctx.db.keys())) as Product[];
+    const keys = await ctx.db.keys("");
+    const data = await ctx.db.mget(...keys);
+    return data as Product[];
   }),
   buyProduct: procedure
     .input(
@@ -37,7 +39,7 @@ export const productRouter = router({
 
       await tx.wait();
 
-      const product = ctx.db.get(productId) as Product;
+      const product = (await ctx.db.get(productId)) as Product;
 
       if (
         product.id === productId &&
@@ -48,7 +50,6 @@ export const productRouter = router({
         product.transactionHash = hash;
       }
 
-      ctx.db.set(product.id, product);
-      ctx.db.get(product.id);
+      await ctx.db.set(product.id, product);
     }),
 });
