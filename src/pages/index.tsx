@@ -42,15 +42,69 @@ export async function payWithMetamask(
   return transactionHash;
 }
 
+const NFT = ({ refetch, wallet, ...data }) => {
+  const buyProduct = trpc.buyProduct.useMutation({
+    onSuccess: refetch,
+  });
+  return (
+    <Card
+      direction={{ base: "column" }}
+      overflow="hidden"
+      variant="outline"
+      maxW="300px"
+      key={data.id}
+    >
+      <Image
+        objectFit="cover"
+        maxW={{ base: "100%" }}
+        src={data.url}
+        alt={data.name}
+      />
+
+      <Stack direction="column">
+        <CardBody>
+          <Heading size="md">{data.name}</Heading>
+          <Text py="2">ID:{data.id}</Text>
+          <Text py="2">createdBy:{data.createdBy}</Text>
+          {data.owner.toLowerCase() !== wallet && (
+            <Text py="2">owned:{data.owner}</Text>
+          )}
+        </CardBody>
+
+        <CardFooter>
+          {data.owner.toLowerCase() !== wallet && (
+            <Button
+              variant="solid"
+              colorScheme="blue"
+              isLoading={buyProduct.isLoading}
+              onClick={() => {
+                if (!wallet) return;
+                payWithMetamask(wallet, data.createdBy, data.value).then(
+                  (hash) =>
+                    buyProduct.mutateAsync({
+                      hash,
+                      productId: data.id,
+                    })
+                );
+              }}
+            >
+              Buy {data.value} FTM
+            </Button>
+          )}
+          {data.owner.toLowerCase() === wallet && (
+            <Badge variant="green">Owned</Badge>
+          )}
+        </CardFooter>
+      </Stack>
+    </Card>
+  );
+};
 export default function Home() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [eth, setEth] = useState(null);
   const [balance, setBalance] = useState(0);
 
   const produts = trpc.products.useQuery();
-  const buyProduct = trpc.buyProduct.useMutation({
-    onSuccess: produts.refetch,
-  });
 
   const checkIsConnected = async () => {
     if (window.ethereum && window.ethereum.isMetaMask) {
@@ -122,56 +176,12 @@ export default function Home() {
       </Flex>
       <Flex flexWrap="wrap" gap="20px" justifyContent="center">
         {produts.data?.map((data) => (
-          <Card
-            direction={{ base: "column" }}
-            overflow="hidden"
-            variant="outline"
-            maxW="300px"
+          <NFT
+            {...data}
             key={data.id}
-          >
-            <Image
-              objectFit="cover"
-              maxW={{ base: "100%" }}
-              src={data.url}
-              alt={data.name}
-            />
-
-            <Stack direction="column">
-              <CardBody>
-                <Heading size="md">{data.name}</Heading>
-                <Text py="2">ID:{data.id}</Text>
-                <Text py="2">createdBy:{data.createdBy}</Text>
-                {data.owner.toLowerCase() !== wallet && (
-                  <Text py="2">owned:{data.owner}</Text>
-                )}
-              </CardBody>
-
-              <CardFooter>
-                {data.owner.toLowerCase() !== wallet && (
-                  <Button
-                    variant="solid"
-                    colorScheme="blue"
-                    isLoading={buyProduct.isLoading}
-                    onClick={() => {
-                      if (!wallet) return;
-                      payWithMetamask(wallet, data.createdBy, data.value).then(
-                        (hash) =>
-                          buyProduct.mutateAsync({
-                            hash,
-                            productId: data.id,
-                          })
-                      );
-                    }}
-                  >
-                    Buy {data.value} FTM
-                  </Button>
-                )}
-                {data.owner.toLowerCase() === wallet && (
-                  <Badge variant="green">Owned</Badge>
-                )}
-              </CardFooter>
-            </Stack>
-          </Card>
+            wallet={wallet}
+            refetch={produts.refetch}
+          />
         ))}
       </Flex>
     </Container>
