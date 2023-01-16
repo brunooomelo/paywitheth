@@ -16,11 +16,16 @@ import { trpc } from "../utils/trpc";
 
 import { ethers } from "ethers";
 
-export async function payWithMetamask(sender, receiver, strEther) {
+export async function payWithMetamask(
+  sender: string,
+  receiver: string,
+  strEther: any
+) {
   let ethereum = window.ethereum;
 
+  if (!ethereum?.enable) return;
   // Request account access if needed
-  await ethereum.enable();
+  await ethereum?.enable();
 
   let provider = new ethers.providers.Web3Provider(ethereum);
 
@@ -64,9 +69,11 @@ export default function Home() {
       // toast.error("Metamask not found, please install Metamask wallet");
       return;
     }
-    const accounts = await eth?.request({ method: "eth_requestAccounts" });
+    const accounts = await window.ethereum?.request({
+      method: "eth_requestAccounts",
+    });
     setAccount(accounts);
-  }, [eth]);
+  }, []);
 
   const setAccount = (accounts: string[]) => {
     if (!accounts.length) {
@@ -141,8 +148,9 @@ export default function Home() {
                   <Button
                     variant="solid"
                     colorScheme="blue"
-                    isLoading={buyProduct.loading}
+                    isLoading={buyProduct.isLoading}
                     onClick={() => {
+                      if (!wallet) return;
                       payWithMetamask(wallet, data.createdBy, data.value).then(
                         (hash) =>
                           buyProduct.mutateAsync({
