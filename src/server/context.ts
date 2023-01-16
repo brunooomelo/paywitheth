@@ -5,7 +5,7 @@ import { InMemoryDatabase } from "in-memory-database";
 const db = new InMemoryDatabase();
 Array.from({ length: 10 }).map((_, index) => {
   const id = uuid();
-  db.set("0f29c741-f083-4805-8cc4-13c73a05e803", {
+  db.set(id, {
     id,
     name: `NFT #${index + 1}`,
     url: "https://pbs.twimg.com/media/Fkj1j1zVEAAOpeI?format=jpg&name=large",
