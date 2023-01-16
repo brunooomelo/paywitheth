@@ -15,7 +15,7 @@ type Product = {
 };
 export const productRouter = router({
   products: procedure.query(async ({ ctx }) => {
-    return Object.values(ctx.db.mget(ctx.db.keys()));
+    return Object.values(ctx.db.mget(ctx.db.keys())) as Product[];
   }),
   buyProduct: procedure
     .input(
