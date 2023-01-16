@@ -1,5 +1,4 @@
 import { inferAsyncReturnType } from "@trpc/server";
-import { prisma } from "../utils/prisma";
 import { JsonDB, Config } from "node-json-db";
 
 const db = new JsonDB(new Config("database", true, false, "./"));
